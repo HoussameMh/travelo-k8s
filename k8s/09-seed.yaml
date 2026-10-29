@@ -8,13 +8,14 @@ data:
     INSERT IGNORE INTO flight
       (id_flight, departure_city, departure_airport, arrival_city, arrival_airport, date, departure_time, arrival_time, company, price)
     VALUES
-      (1, 'Paris',      'CDG', 'Lyon',       'LYS', '2026-11-20', '08:00:00', '09:10:00', 'Air France',       89.99),
-      (2, 'Paris',      'ORY', 'Lyon',       'LYS', '2026-11-20', '13:30:00', '14:35:00', 'Transavia',        69.50),
-      (3, 'Lyon',       'LYS', 'Paris',      'CDG', '2026-11-25', '10:00:00', '11:10:00', 'Air France',       95.00),
-      (4, 'Casablanca', 'CMN', 'Paris',      'CDG', '2026-11-20', '07:15:00', '11:20:00', 'Royal Air Maroc', 1450.00),
-      (5, 'Paris',      'CDG', 'Casablanca', 'CMN', '2026-11-27', '18:00:00', '20:05:00', 'Royal Air Maroc', 1390.00);
+      (1, 'Rabat',    'RBA', 'Grenoble', 'GNB', '2026-11-20', '07:30:00', '10:20:00', 'Royal Air Maroc', 1290.00),
+      (2, 'Rabat',    'RBA', 'Grenoble', 'GNB', '2026-11-20', '12:15:00', '15:05:00', 'Air Arabia',       980.00),
+      (3, 'Rabat',    'RBA', 'Grenoble', 'GNB', '2026-11-20', '18:40:00', '21:30:00', 'Transavia',       1150.00),
+      (4, 'Rabat',    'RBA', 'Grenoble', 'GNB', '2026-11-22', '09:00:00', '11:50:00', 'Royal Air Maroc', 1340.00),
+      (5, 'Grenoble', 'GNB', 'Rabat',    'RBA', '2026-11-27', '11:00:00', '13:50:00', 'Royal Air Maroc', 1310.00),
+      (6, 'Grenoble', 'GNB', 'Rabat',    'RBA', '2026-11-27', '16:30:00', '19:20:00', 'Air Arabia',       950.00);
 
-    INSERT IGNORE INTO seats (id, id_flight) VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 5);
+    INSERT IGNORE INTO seats (id, id_flight) VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6);
     UPDATE seats SET
       a1='empty', b1='empty', c1='empty', d1='empty',
       a2='empty', b2='empty', c2='empty', d2='empty',
