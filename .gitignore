@@ -1,0 +1,2 @@
+# le vrai Secret ne doit jamais être publié
+k8s/03-secret.yaml

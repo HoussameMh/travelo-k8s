@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: travelo-seed-sql
+  namespace: travelo
+data:
+  seed.sql: |
+    INSERT IGNORE INTO flight
+      (id_flight, departure_city, departure_airport, arrival_city, arrival_airport, date, departure_time, arrival_time, company, price)
+    VALUES
+      (1, 'Paris',      'CDG', 'Lyon',       'LYS', '2026-11-20', '08:00:00', '09:10:00', 'Air France',       89.99),
+      (2, 'Paris',      'ORY', 'Lyon',       'LYS', '2026-11-20', '13:30:00', '14:35:00', 'Transavia',        69.50),
+      (3, 'Lyon',       'LYS', 'Paris',      'CDG', '2026-11-25', '10:00:00', '11:10:00', 'Air France',       95.00),
+      (4, 'Casablanca', 'CMN', 'Paris',      'CDG', '2026-11-20', '07:15:00', '11:20:00', 'Royal Air Maroc', 1450.00),
+      (5, 'Paris',      'CDG', 'Casablanca', 'CMN', '2026-11-27', '18:00:00', '20:05:00', 'Royal Air Maroc', 1390.00);
+
+    INSERT IGNORE INTO seats (id, id_flight) VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 5);
+    UPDATE seats SET
+      a1='empty', b1='empty', c1='empty', d1='empty',
+      a2='empty', b2='empty', c2='empty', d2='empty',
+      a3='empty', b3='empty', c3='empty', d3='empty',
+      a4='empty', b4='empty', c4='empty', d4='empty',
+      a5='empty', b5='empty', c5='empty', d5='empty',
+      a6='empty', b6='empty', c6='empty', d6='empty',
+      a7='empty', b7='empty', c7='empty', d7='empty',
+      a8='empty', b8='empty', c8='empty', d8='empty',
+      a9='empty', b9='empty', c9='empty', d9='empty'
+    WHERE a1 IS NULL;
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: travelo-seed
+  namespace: travelo
+spec:
+  backoffLimit: 4
+  activeDeadlineSeconds: 900
+  template:
+    metadata:
+      labels:
+        app: travelo-seed
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: mysql:8.4
+          command: ["sh", "-c"]
+          args:
+            - |
+              until mysql -h travelo-database -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "SELECT 1 FROM seats LIMIT 1" >/dev/null 2>&1; do
+                echo "En attente des tables creees par le backend..."
+                sleep 5
+              done
+              mysql -h travelo-database -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" < /seed/seed.sql
+              echo "Donnees de test inserees."
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: travelo-config
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: travelo-config
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: travelo-secret
+                  key: MYSQL_PASSWORD
+          resources:
+            requests: { cpu: 25m,  memory: 64Mi }
+            limits:   { cpu: 200m, memory: 256Mi }
+          volumeMounts:
+            - name: seed
+              mountPath: /seed
+      volumes:
+        - name: seed
+          configMap:
+            name: travelo-seed-sql
