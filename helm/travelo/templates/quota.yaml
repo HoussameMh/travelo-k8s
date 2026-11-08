@@ -1,0 +1,30 @@
+{{- if .Values.quota.enabled }}
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ include "travelo.fullname" . }}-limits
+  labels:
+    {{- include "travelo.labels" . | nindent 4 }}
+spec:
+  limits:
+    - type: Container
+      defaultRequest: { cpu: 25m, memory: 32Mi }
+      default: { cpu: 200m, memory: 128Mi }
+      max: { cpu: "1", memory: 1Gi }
+    - type: Pod
+      max: { cpu: "1", memory: 1Gi }
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ include "travelo.fullname" . }}-quota
+  labels:
+    {{- include "travelo.labels" . | nindent 4 }}
+spec:
+  hard:
+    pods: {{ .Values.quota.pods | quote }}
+    requests.cpu: {{ .Values.quota.requestsCpu | quote }}
+    requests.memory: {{ .Values.quota.requestsMemory }}
+    limits.cpu: {{ .Values.quota.limitsCpu | quote }}
+    limits.memory: {{ .Values.quota.limitsMemory }}
+{{- end }}

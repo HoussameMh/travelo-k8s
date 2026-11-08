@@ -43,3 +43,37 @@ Ajouter au fichier `C:\Windows\System32\drivers\etc\hosts` :
 Puis lancer `minikube tunnel` et ouvrir http://frontend.exam.local.
 
 Images utilisées : `houssamemh/travelo-backend:1.0.4`, `houssamemh/travelo-frontend:1.0.1` (Docker Hub), `mysql:8.4`.
+
+## Bonus C : chart Helm
+
+Le chart `helm/travelo` reprend tous les objets du dossier `k8s/` sous forme de templates paramétrables (`values.yaml`). Il est publié dans le dossier `charts/` de ce dépôt, servi comme dépôt Helm :
+
+```powershell
+helm repo add travelo https://raw.githubusercontent.com/HoussameMh/travelo-k8s/main/charts
+helm repo update
+helm install travelo travelo/travelo --namespace helm --create-namespace --wait --timeout 10m
+```
+
+Les mots de passe MySQL sont générés à l'installation et conservés lors des mises à jour.
+
+## Bonus B : Skaffold
+
+`skaffold.yaml` construit l'image du frontend à partir du code de Travelo (dépôt `travelo-app` placé à côté de `docker/`) et la déploie avec le chart Helm dans le namespace `skaffold`. Le nœud Minikube utilise containerd : l'image est construite avec Docker puis copiée dans le nœud (`skaffold/minikube-build.ps1`).
+
+```powershell
+kubectl config set-context travelo-minikube --cluster=minikube --user=minikube
+skaffold config set --kube-context travelo-minikube local-cluster true
+skaffold dev --kube-context travelo-minikube --detect-minikube=false --cache-artifacts=false
+```
+
+## Bonus A : cluster MySQL avec un Operator
+
+Le dossier `operator/` décrit un InnoDB Cluster de 3 instances MySQL (Group Replication) et un MySQL Router, géré par le MySQL Operator d'Oracle :
+
+```powershell
+helm repo add mysql-operator https://mysql.github.io/mysql-operator/
+helm install mysql-operator mysql-operator/mysql-operator --namespace mysql-operator --create-namespace
+kubectl apply -f operator/namespace.yaml
+Copy-Item operator/secret.yaml.example operator/secret.yaml
+kubectl apply -f operator/secret.yaml -f operator/innodbcluster.yaml
+```

@@ -1,0 +1,42 @@
+apiVersion: v1
+entries:
+  travelo:
+  - apiVersion: v2
+    appVersion: 1.0.4
+    created: "2026-11-08T01:00:39.4906924Z"
+    description: Application Travelo (React, Spring Boot, MySQL) sur Kubernetes
+    digest: 28d6c69a7572a8e7d3c9f18a32aced4f330636771966b390d273d0d556c37315
+    home: https://github.com/HoussameMh/travelo-k8s
+    keywords:
+    - travelo
+    - spring-boot
+    - react
+    - mysql
+    maintainers:
+    - name: Houssame Mehrach
+      url: https://github.com/HoussameMh
+    name: travelo
+    type: application
+    urls:
+    - https://raw.githubusercontent.com/HoussameMh/travelo-k8s/main/charts/travelo-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: 1.0.4
+    created: "2026-11-08T01:00:39.4882812Z"
+    description: Application Travelo (React, Spring Boot, MySQL) sur Kubernetes
+    digest: ffca19dddcda59d315a9deefdd6f2dc06934d7671546ab5b03ef534a71244eae
+    home: https://github.com/HoussameMh/travelo-k8s
+    keywords:
+    - travelo
+    - spring-boot
+    - react
+    - mysql
+    maintainers:
+    - name: Houssame Mehrach
+      url: https://github.com/HoussameMh
+    name: travelo
+    type: application
+    urls:
+    - https://raw.githubusercontent.com/HoussameMh/travelo-k8s/main/charts/travelo-1.0.0.tgz
+    version: 1.0.0
+generated: "2026-11-08T01:00:39.4609512Z"

@@ -1,0 +1,67 @@
+{{- if .Values.seed.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "travelo.fullname" . }}-seed-sql
+  labels:
+    {{- include "travelo.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:
+  seed.sql: |
+{{ .Files.Get "files/seed.sql" | indent 4 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "travelo.fullname" . }}-seed
+  labels:
+    {{- include "travelo.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  backoffLimit: 4
+  activeDeadlineSeconds: 900
+  template:
+    metadata:
+      labels:
+        {{- include "travelo.selector" (dict "root" . "component" "seed") | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: {{ .Values.database.image }}
+          command: ["sh", "-c"]
+          args:
+            - |
+              until mysql -h {{ include "travelo.dbHost" . }} -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "SELECT 1 FROM seats LIMIT 1" >/dev/null 2>&1; do
+                echo "En attente des tables creees par le backend..."
+                sleep 5
+              done
+              mysql -h {{ include "travelo.dbHost" . }} -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" < /seed/seed.sql
+              echo "Donnees de test inserees."
+          env:
+            - name: MYSQL_DATABASE
+              value: {{ .Values.database.name | quote }}
+            - name: MYSQL_USER
+              value: {{ .Values.database.user | quote }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "travelo.secretName" . }}
+                  key: MYSQL_PASSWORD
+          resources:
+            requests: { cpu: 25m, memory: 64Mi }
+            limits: { cpu: 200m, memory: 256Mi }
+          volumeMounts:
+            - name: seed
+              mountPath: /seed
+      volumes:
+        - name: seed
+          configMap:
+            name: {{ include "travelo.fullname" . }}-seed-sql
+{{- end }}

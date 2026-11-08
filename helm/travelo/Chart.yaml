@@ -1,0 +1,15 @@
+apiVersion: v2
+name: travelo
+description: Application Travelo (React, Spring Boot, MySQL) sur Kubernetes
+type: application
+version: 1.0.1
+appVersion: "1.0.4"
+keywords:
+  - travelo
+  - spring-boot
+  - react
+  - mysql
+maintainers:
+  - name: Houssame Mehrach
+    url: https://github.com/HoussameMh
+home: https://github.com/HoussameMh/travelo-k8s

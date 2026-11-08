@@ -1,0 +1,46 @@
+apiVersion: mysql.oracle.com/v2
+kind: InnoDBCluster
+metadata:
+  name: travelo-cluster
+  namespace: travelo-db
+spec:
+  secretName: travelo-cluster-secret
+  tlsUseSelfSigned: true
+  instances: 3
+  router:
+    instances: 1
+    podSpec:
+      containers:
+        - name: router
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 300m, memory: 192Mi }
+  mycnf: |
+    [mysqld]
+    innodb_buffer_pool_size=48M
+    innodb_log_buffer_size=4M
+    max_connections=40
+    table_open_cache=128
+    table_definition_cache=400
+    key_buffer_size=8M
+    temptable_max_ram=32M
+    performance_schema_max_table_instances=400
+    performance_schema_digests_size=1000
+    performance_schema_max_digest_length=256
+    performance_schema_max_sql_text_length=256
+    performance_schema_events_statements_history_long_size=100
+    performance_schema_events_waits_history_long_size=100
+    performance_schema_events_stages_history_long_size=100
+    performance_schema_events_transactions_history_long_size=100
+    loose-group_replication_message_cache_size=134217728
+  datadirVolumeClaimTemplate:
+    accessModes: ["ReadWriteOnce"]
+    resources:
+      requests:
+        storage: 1Gi
+  podSpec:
+    containers:
+      - name: mysql
+        resources:
+          requests: { cpu: 100m, memory: 320Mi }
+          limits: { cpu: "1", memory: 768Mi }

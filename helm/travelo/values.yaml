@@ -1,0 +1,60 @@
+global:
+  imagePullPolicy: IfNotPresent
+
+database:
+  image: mysql:8.4
+  name: travelo_db
+  user: travelo
+  rootPassword: ""
+  password: ""
+  storage: 2Gi
+  storageClass: ""
+  resources:
+    requests: { cpu: 150m, memory: 512Mi }
+    limits: { cpu: "1", memory: 1Gi }
+
+backend:
+  image:
+    repository: houssamemh/travelo-backend
+    tag: "1.0.4"
+  replicas: 2
+  port: 8080
+  probePath: /api/hello
+  javaOptions: "-XX:MaxRAMPercentage=60"
+  resources:
+    requests: { cpu: 150m, memory: 384Mi }
+    limits: { cpu: "1", memory: 768Mi }
+
+frontend:
+  image:
+    repository: houssamemh/travelo-frontend
+    tag: "1.0.1"
+  replicas: 2
+  port: 3000
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 200m, memory: 128Mi }
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+ingress:
+  enabled: true
+  className: nginx
+  frontendHost: frontend.exam.local
+  backendHost: backend.exam.local
+
+quota:
+  enabled: true
+  pods: "12"
+  requestsCpu: "1"
+  requestsMemory: 2Gi
+  limitsCpu: "5"
+  limitsMemory: 4Gi
+
+rbac:
+  enabled: true
+
+seed:
+  enabled: true

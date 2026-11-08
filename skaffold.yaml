@@ -1,0 +1,38 @@
+apiVersion: skaffold/v4beta14
+kind: Config
+metadata:
+  name: travelo
+build:
+  tagPolicy:
+    inputDigest: {}
+  local:
+    push: false
+    concurrency: 1
+  artifacts:
+    - image: travelo-frontend
+      context: ../../travelo-app/travelo_frontend
+      custom:
+        buildCommand: powershell -NoProfile -ExecutionPolicy Bypass -File ../../docker/travelo-k8s/skaffold/minikube-build.ps1
+        dependencies:
+          paths:
+            - src/**
+            - public/**
+            - package.json
+            - package-lock.json
+            - nginx.conf
+            - dockerfile
+deploy:
+  kubeContext: travelo-minikube
+  helm:
+    releases:
+      - name: travelo
+        chartPath: helm/travelo
+        namespace: skaffold
+        createNamespace: true
+        wait: true
+        setValueTemplates:
+          frontend.image.repository: "{{.IMAGE_REPO_travelo_frontend}}"
+          frontend.image.tag: "{{.IMAGE_TAG_travelo_frontend}}"
+        setValues:
+          global.imagePullPolicy: IfNotPresent
+  statusCheckDeadlineSeconds: 600

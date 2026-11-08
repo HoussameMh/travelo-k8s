@@ -1,0 +1,16 @@
+{{- if .Values.pdb.enabled }}
+{{- range $component := list "backend" "frontend" }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "travelo.fullname" $ }}-{{ $component }}-pdb
+  labels:
+    {{- include "travelo.labels" $ | nindent 4 }}
+spec:
+  minAvailable: {{ $.Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "travelo.selector" (dict "root" $ "component" $component) | nindent 6 }}
+{{- end }}
+{{- end }}

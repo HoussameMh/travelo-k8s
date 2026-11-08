@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-client
+  namespace: travelo-db
+  labels:
+    app: mysql-client
+spec:
+  containers:
+    - name: client
+      image: mysql:8.4
+      command: ["sleep", "infinity"]
+      env:
+        - name: MYSQL_PWD
+          valueFrom:
+            secretKeyRef:
+              name: travelo-cluster-secret
+              key: rootPassword
+      resources:
+        requests: { cpu: 10m, memory: 32Mi }
+        limits: { cpu: 200m, memory: 128Mi }

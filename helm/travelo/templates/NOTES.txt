@@ -1,0 +1,16 @@
+Travelo {{ .Chart.AppVersion }} est déployé dans le namespace {{ .Release.Namespace }} (release {{ .Release.Name }}).
+
+Suivre le démarrage :
+  kubectl get pods -n {{ .Release.Namespace }} -w
+
+{{- if .Values.ingress.enabled }}
+
+Ajouter au fichier hosts :
+  127.0.0.1 {{ .Values.ingress.frontendHost }}
+  127.0.0.1 {{ .Values.ingress.backendHost }}
+
+Puis lancer "minikube tunnel" et ouvrir http://{{ .Values.ingress.frontendHost }}
+{{- end }}
+
+Mot de passe MySQL de l'application :
+  kubectl get secret {{ include "travelo.secretName" . }} -n {{ .Release.Namespace }} -o jsonpath="{.data.MYSQL_PASSWORD}"
